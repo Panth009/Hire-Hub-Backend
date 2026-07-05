@@ -30,31 +30,34 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter filter;
 
+    // =========================
+    // SECURITY FILTER CHAIN
+    // =========================
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            .cors(Customizer.withDefaults())      // <-- CORS Enable
+            .cors(Customizer.withDefaults())   // enable CORS
             .csrf(csrf -> csrf.disable())
 
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(
-                            "/auth/login",
-                            "/users/register",
-                            "/users/changePass",
-                            "/users/sendOtp/**",
-                            "/users/verifyOtp/**",
-                            "/"
-                    ).permitAll()
-                    .anyRequest().authenticated()
+                .requestMatchers(
+                    "/auth/login",
+                    "/users/register",
+                    "/users/changePass",
+                    "/users/sendOtp/**",
+                    "/users/verifyOtp/**",
+                    "/"
+                ).permitAll()
+                .anyRequest().authenticated()
             )
 
             .exceptionHandling(ex -> ex
-                    .authenticationEntryPoint(point)
+                .authenticationEntryPoint(point)
             )
 
             .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             );
 
         http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
@@ -62,14 +65,27 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // =========================
+    // CORS CONFIG (IMPORTANT FIX)
+    // =========================
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOrigins(
+            List.of(
+                "http://localhost:3000",
+                "https://hire-hub-frontend.onrender.com"
+            )
+        );
+
+        configuration.setAllowedMethods(
+            List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        );
+
         configuration.setAllowedHeaders(List.of("*"));
+
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
@@ -78,5 +94,21 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
+    }
+
+    // =========================
+    // PASSWORD ENCODER
+    // =========================
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    // =========================
+    // AUTH MANAGER
+    // =========================
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }
