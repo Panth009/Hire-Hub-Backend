@@ -16,4 +16,12 @@ public class MyConfig
 	{
 		return builder.getAuthenticationManager();
 	}
+	
+    // =========================
+    // PASSWORD ENCODER
+    // =========================
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }

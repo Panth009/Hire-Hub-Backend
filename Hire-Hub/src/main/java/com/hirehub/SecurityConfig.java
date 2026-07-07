@@ -96,13 +96,7 @@ public class SecurityConfig {
         return source;
     }
 
-    // =========================
-    // PASSWORD ENCODER
-    // =========================
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+
 
     // =========================
     // AUTH MANAGER
